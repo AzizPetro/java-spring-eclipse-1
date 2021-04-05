@@ -25,13 +25,13 @@ public class MainController {
 	}
 
 	@GetMapping("/")
-	public Collection<Players> home() {
+	public Collection<String> home() {
 		return this.teamDao.getAll();
 
 	}
 
 	@GetMapping("/teams")
-	public Collection<Players> getTeams() {
+	public Collection<String> getTeams() {
 		return this.teamDao.getAll();
 	}
 

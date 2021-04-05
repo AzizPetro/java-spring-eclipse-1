@@ -7,7 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import model.Players;
 
@@ -32,8 +34,9 @@ public class TeamDao implements IDao {
 					String playerName = resultSet.getString("playername");
 					String role = resultSet.getString("role");
 					String nation = resultSet.getString("nationality");
+					String teamName = resultSet.getString("teamname");
 
-					Players player = new Players(playerName, role, nation, id);
+					Players player = new Players(playerName, role, nation, id, teamName);
 
 					playerList.add(player);
 				}
@@ -47,20 +50,16 @@ public class TeamDao implements IDao {
 	}
 
 	@Override
-	public Collection<Players> getAll() {
-		Collection<Players> playerList = new ArrayList<>();
-		String sql = "SELECT * FROM \"players\" ORDER BY \"teamid\"";
+	public Collection<String> getAll() {
+		Set<String> playerList = new HashSet<String>();
+		String sql = "SELECT teamname FROM \"players\" ORDER BY \"teamid\"";
 
 		connection.ifPresent(conn -> {
 			try (Statement statement = conn.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
 
 				while (resultSet.next()) {
-					String playerName = resultSet.getString("playername");
-					String role = resultSet.getString("role");
-					String nation = resultSet.getString("nationality");
-					int teamId = resultSet.getInt("teamid");
-					Players player = new Players(playerName, role, nation, teamId);
-					playerList.add(player);
+					String teamname = resultSet.getString("teamname");
+					playerList.add(teamname);
 				}
 
 			} catch (SQLException ex) {
@@ -73,17 +72,17 @@ public class TeamDao implements IDao {
 
 	@Override
 	public void save(Players newPlayer) {
-		System.out.println(newPlayer.toString());
-		Collection<Players> playerList = this.get(newPlayer.getTeamId());
-		int foreign = (int) playerList.parallelStream().filter(element -> element.getNationality() != "tr").count();
-		int goalKeeper = (int) playerList.parallelStream().filter(element -> element.getRole() != "gk").count();
-		if (playerList.size() > 18 || foreign > 6 || goalKeeper > 2) {
+		Collection<Players> playerList = this.get(newPlayer.getTeamid());
+		int foreign = (int) playerList.parallelStream().filter(element -> !element.getNationality().equals("tr"))
+				.count();
+		int goalKeeper = (int) playerList.parallelStream().filter(element -> element.getRole().equals("gk")).count();
+		if (playerList.size() > 18 || (foreign >= 6 && !newPlayer.getNationality().equals("tr"))
+				|| (goalKeeper >= 2 && newPlayer.getRole().equals("gk"))) {
 			return;
 		}
-
-		String sql = "INSERT INTO players (playername, role, nationality, teamid) VALUES (" + newPlayer.getPlayerName()
-				+ "," + newPlayer.getRole() + "," + newPlayer.getNationality() + "," + newPlayer.getTeamId() + ")";
-
+		String sql = "INSERT INTO players (playername, role, nationality, teamid, teamname) VALUES (" + "'"
+				+ newPlayer.getPlayername() + "'" + ",'" + newPlayer.getRole() + "','" + newPlayer.getNationality()
+				+ "'," + newPlayer.getTeamid() + ",'" + newPlayer.getTeamname() + "')";
 		connection.flatMap(conn -> {
 
 			try (PreparedStatement statement = conn.prepareStatement(sql)) {
@@ -98,15 +97,18 @@ public class TeamDao implements IDao {
 	}
 
 	@Override
-	public boolean update(Players newPlayer) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	public void deleteTeam(int id) {
+		String sql = "DELETE FROM \"players\" WHERE \"teamid\" = " + id;
 
-	@Override
-	public boolean deleteTeam(int id) {
-		// TODO Auto-generated method stub
-		return false;
+		connection.ifPresent(conn -> {
+			try (PreparedStatement statement = conn.prepareStatement(sql)) {
+				statement.execute();
+			}
+
+			catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+		});
 	}
 
 }

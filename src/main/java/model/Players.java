@@ -10,20 +10,14 @@ public class Players {
 	private String role;
 	private String nationality;
 	private int teamid;
+	private String teamname;
 
-	public Players(String playerName, String role, String nationality, int teamId) {
-		this.setPlayerName(playerName);
+	public Players(String playerName, String role, String nationality, int teamId, String teamname) {
+		this.setPlayername(playerName);
 		this.setRole(role);
 		this.setNationality(nationality);
-		this.setTeamId(teamId);
-	}
-
-	public String getPlayerName() {
-		return playername;
-	}
-
-	public void setPlayerName(String playerName) {
-		this.playername = playerName;
+		this.setTeamid(teamId);
+		this.setTeamname(teamname);
 	}
 
 	public String getRole() {
@@ -42,18 +36,10 @@ public class Players {
 		this.nationality = nationality;
 	}
 
-	public int getTeamId() {
-		return teamid;
-	}
-
-	public void setTeamId(int teamId) {
-		this.teamid = teamId;
-	}
-
 	@Override
 	public String toString() {
-		return "player [playerName=" + this.playername + ", role=" + this.role + ", nationality =" + this.nationality
-				+ ", teamId =" + this.teamid + "]";
+		return "player [playername=" + this.playername + ", role=" + this.role + ", nationality =" + this.nationality
+				+ ", teamid =" + this.teamid + "]";
 	}
 
 	@Override
@@ -64,6 +50,7 @@ public class Players {
 		result = prime * result + ((playername == null) ? 0 : playername.hashCode());
 		result = prime * result + ((role == null) ? 0 : role.hashCode());
 		result = prime * result + teamid;
+		result = prime * result + ((teamname == null) ? 0 : teamname.hashCode());
 		return result;
 	}
 
@@ -93,7 +80,36 @@ public class Players {
 			return false;
 		if (teamid != other.teamid)
 			return false;
+		if (teamname == null) {
+			if (other.teamname != null)
+				return false;
+		} else if (!teamname.equals(other.teamname))
+			return false;
 		return true;
+	}
+
+	public String getPlayername() {
+		return playername;
+	}
+
+	public void setPlayername(String playername) {
+		this.playername = playername;
+	}
+
+	public int getTeamid() {
+		return teamid;
+	}
+
+	public void setTeamid(int teamid) {
+		this.teamid = teamid;
+	}
+
+	public String getTeamname() {
+		return teamname;
+	}
+
+	public void setTeamname(String teamname) {
+		this.teamname = teamname;
 	}
 
 }
